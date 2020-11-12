@@ -14,6 +14,7 @@ import javax.swing.UIManager;
 import java.awt.SystemColor;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import java.awt.CardLayout;
@@ -22,12 +23,10 @@ import java.awt.Font;
 public class Calculatrice {
 
 	private JFrame frame;
-	static boolean isOn = false;
-	static int currentOperator = 0;
-	static String result;
-	static boolean operatorPressed = false;
-	static double memorieValue = 0;
 
+	Calculate calculate = new Calculate();
+	 double memorieValue = 0;
+	 boolean isValueInMemorie = false;
 	/**
 	 * Launch the application.
 	 */
@@ -44,59 +43,9 @@ public class Calculatrice {
 		});
 	}
 
-	public void calculate(JLabel calcul_display, int newOperator) {
-		operatorPressed = true;
-		switch (currentOperator) {
-		case 0: {
-			System.out.println(result);
-			result = calcul_display.getText();
-			changeCurrentOpe(newOperator);
-			calcul_display.setText(result);
 
-			break;
-		}
-		case 1: {
-			Double d = Double.parseDouble(result) + Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-			changeCurrentOpe(newOperator);
-			calcul_display.setText(result);
-			break;
-		}
-		case 2: {
-			Double d = Double.parseDouble(result) - Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-			calcul_display.setText(result);
-			changeCurrentOpe(newOperator);
-			break;
-		}
-		case 3: {
 
-			Double d = Double.parseDouble(result) * Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-			calcul_display.setText(result);
-			changeCurrentOpe(newOperator);
-			break;
-		}
-		case 4: {
-			Double d = Double.parseDouble(result) / Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-			calcul_display.setText(result);
-			changeCurrentOpe(newOperator);
-			break;
-		}
 
-		default:
-			System.out.println("error");
-
-		}
-
-	}
-
-	public void changeCurrentOpe(int newOperator) {
-
-		currentOperator = newOperator;
-
-	}
 
 	/**
 	 * Create the application.
@@ -144,8 +93,12 @@ public class Calculatrice {
 		JButton btnNewButton = new JButton("MRC");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				calcul_display.setText("" + memorieValue);
+				if (calculate.isOn) {
+					if (isValueInMemorie) {
+						calcul_display.setText("" + memorieValue);
+					}
 
+				}
 			}
 		});
 		btnNewButton.setBounds(10, 11, 73, 55);
@@ -155,8 +108,11 @@ public class Calculatrice {
 		JButton btnMplus = new JButton("M+");
 		btnMplus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				memorieValue += Double.parseDouble(calcul_display.getText());
-				System.out.println(memorieValue);
+				if (calculate.isOn) {
+					memorieValue += Double.parseDouble(calcul_display.getText());
+					isValueInMemorie = true;
+				}
+
 			}
 
 		});
@@ -167,8 +123,10 @@ public class Calculatrice {
 		JButton btnMMoins = new JButton("M-");
 		btnMMoins.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				memorieValue -= Double.parseDouble(calcul_display.getText());
-				System.out.println(memorieValue);
+				if (calculate.isOn) {
+					memorieValue -= Double.parseDouble(calcul_display.getText());
+					isValueInMemorie = true;
+				}
 			}
 		});
 		btnMMoins.setBounds(176, 11, 73, 55);
@@ -189,14 +147,14 @@ public class Calculatrice {
 		JButton btnOnc = new JButton("ON-C");
 		btnOnc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!isOn) {
-					isOn = true;
+				if (!calculate.isOn) {
+					calculate.setOn(true);
 					panel_calcul.setBackground(Color.green);
 
 				}
 				calcul_display.setText("");
-				result = "";
-				changeCurrentOpe(0);
+				calculate.setResult("");
+				calculate.changeCurrentOpe(0);
 
 			}
 		});
@@ -207,19 +165,7 @@ public class Calculatrice {
 		JButton btn_7 = new JButton("7");
 		btn_7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_7.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_7.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_7.getText());
 
 			}
 		});
@@ -230,19 +176,7 @@ public class Calculatrice {
 		JButton btn_8 = new JButton("8");
 		btn_8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_8.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_8.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_8.getText());
 
 			}
 		});
@@ -253,19 +187,7 @@ public class Calculatrice {
 		JButton btn_9 = new JButton("9");
 		btn_9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_9.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_9.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_9.getText());
 
 			}
 		});
@@ -278,8 +200,8 @@ public class Calculatrice {
 			public void actionPerformed(ActionEvent e) {
 				if (!calcul_display.getText().isEmpty()) {
 					Double d = Double.parseDouble(calcul_display.getText()) / 100;
-					result = "" + d;
-					calcul_display.setText(result);
+
+					calcul_display.setText("" + d);
 				}
 
 			}
@@ -295,8 +217,8 @@ public class Calculatrice {
 
 				if (!calcul_display.getText().isEmpty()) {
 					Double d = Math.sqrt(Double.parseDouble(calcul_display.getText()));
-					result = "" + d;
-					calcul_display.setText(result);
+
+					calcul_display.setText("" + d);
 				}
 
 			}
@@ -308,19 +230,7 @@ public class Calculatrice {
 		JButton btn_4 = new JButton("4");
 		btn_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_4.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_4.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_4.getText());
 
 			}
 		});
@@ -332,17 +242,7 @@ public class Calculatrice {
 		btn_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-					String value = btn_5.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_5.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_5.getText());
 
 			}
 		});
@@ -353,17 +253,7 @@ public class Calculatrice {
 		JButton btn_6 = new JButton("6");
 		btn_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-					String value = btn_6.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_6.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_6.getText());
 
 			}
 		});
@@ -374,11 +264,7 @@ public class Calculatrice {
 		JButton btnX = new JButton("x");
 		btnX.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 3);
-					}
-				}
+				calculate.doOperation(calcul_display,3);
 			}
 		});
 		btnX.setBounds(259, 146, 73, 55);
@@ -388,11 +274,7 @@ public class Calculatrice {
 		JButton btn_division = new JButton("\u00F7");
 		btn_division.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 4);
-					}
-				}
+				calculate.doOperation(calcul_display,4);
 			}
 		});
 		btn_division.setBounds(342, 146, 73, 55);
@@ -402,18 +284,7 @@ public class Calculatrice {
 		JButton btn_1 = new JButton("1");
 		btn_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_1.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_1.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_1.getText());
 
 			}
 		});
@@ -424,18 +295,7 @@ public class Calculatrice {
 		JButton btn_2 = new JButton("2");
 		btn_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_2.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_2.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_2.getText());
 
 			}
 		});
@@ -446,18 +306,7 @@ public class Calculatrice {
 		JButton btn_3 = new JButton("3");
 		btn_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")){
-						calcul_display.setText("");
-					}
-
-					String value = btn_3.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_3.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_3.getText());
 
 			}
 		});
@@ -468,13 +317,7 @@ public class Calculatrice {
 		JButton btn_addition = new JButton("+");
 		btn_addition.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-						System.out.println(result);
-						calculate(calcul_display, 1);
-					}
-					
-				}
+				calculate.doOperation(calcul_display,1);
 			}
 		});
 		btn_addition.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -485,12 +328,8 @@ public class Calculatrice {
 		JButton btn_soustration = new JButton("-");
 		btn_soustration.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 2);
-					}
-
-				}
+				calculate.doOperation(calcul_display,2);
+			
 			}
 		});
 		btn_soustration.setBounds(342, 212, 73, 55);
@@ -500,10 +339,22 @@ public class Calculatrice {
 		JButton btn_result = new JButton("=");
 		btn_result.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 0);
-					calcul_display.setText(result);
+				if (calculate.isOn()) {
+					if (!calculate.result.equals("") || !calcul_display.getText().isEmpty()) {
+
+//						if (calcul_display.getText().equals("0") && currentOperator == 4) {
+//							calcul_display.setFont(new Font("Tahoma", Font.BOLD, 18));
+//							calcul_display.setText("Nous ne pouvons pas diviser par zéro");
+//						} else {
+//						
+//						}
+						if (!calculate.isOperatorPressed()) {
+							calculate.operation(calcul_display, 0);
+							calcul_display.setText(calculate.result);
+						} else {
+							calculate.currentOperator = 0;
+						}
+
 					}
 				}
 			}
@@ -515,17 +366,7 @@ public class Calculatrice {
 		JButton btn_0 = new JButton("0");
 		btn_0.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-					String value = btn_0.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_0.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_0.getText());
 
 			}
 		});
@@ -536,9 +377,26 @@ public class Calculatrice {
 		JButton btn_point = new JButton(".");
 		btn_point.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn()) {
 
-					String value = calcul_display.getText() + btn_point.getText();
+					if (calculate.isOperatorPressed()) {
+
+						calcul_display.setText("");
+					}
+
+					String value = calcul_display.getText();
+					if (calcul_display.getText().indexOf('.') == -1) {
+						value = calcul_display.getText() + btn_point.getText();
+						if (calcul_display.getText().isEmpty()) {
+							value = "0" + btn_point.getText();
+						}
+
+						if (calculate.isOperatorPressed()) {
+
+							value = "0.";
+						}
+					}
+					calculate.setOperatorPressed(false);
 					calcul_display.setText(value);
 				}
 
@@ -551,27 +409,24 @@ public class Calculatrice {
 		JButton btn_signe = new JButton("+/-");
 		btn_signe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn()) {
 					String value = calcul_display.getText();
 					if (calcul_display.getText().indexOf('-') == -1) {
 						value = "-";
-						if (!operatorPressed) {
+						if (!calculate.isOperatorPressed()) {
 
 							value = "-" + calcul_display.getText();
 						}
-						
 
 					} else {
 						value = "-";
-						if (!operatorPressed) {
+						if (!calculate.isOperatorPressed()) {
 
 							value = calcul_display.getText().replace("-", "");
 						}
-						
-						
-						
+
 					}
-					operatorPressed = false;
+					calculate.setOperatorPressed(false);
 					calcul_display.setText(value);
 				}
 
