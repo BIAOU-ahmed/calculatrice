@@ -14,24 +14,19 @@ import javax.swing.UIManager;
 import java.awt.SystemColor;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import java.awt.CardLayout;
 import java.awt.Font;
 
-public class Calculatrice implements KeyListener{
+public class Calculatrice {
 
 	private JFrame frame;
-	static boolean isOn = false;
-	static boolean isValueInMemorie = false;
-	static int currentOperator = 0;
-	static String result;
-	static boolean operatorPressed = false;
-	static double memorieValue = 0;
 
+	Calculate calculate = new Calculate();
+	 double memorieValue = 0;
+	 boolean isValueInMemorie = false;
 	/**
 	 * Launch the application.
 	 */
@@ -48,107 +43,9 @@ public class Calculatrice implements KeyListener{
 		});
 	}
 
-	public void calculate(JLabel calcul_display, int newOperator) {
-		operatorPressed = true;
-		System.out.println(currentOperator);
-		switch (currentOperator) {
-		case 0: {
-			System.out.println(result + "0 debut");
 
-			result = "" + Double.parseDouble(calcul_display.getText());
-			changeCurrentOpe(newOperator);
-			System.out.println(result);
-			String value = result.replace(".", ",");
-			String[] arrOfStr = value.split(",");
-			System.out.println(Arrays.toString(arrOfStr));
-			if (arrOfStr[1].equals("0")) {
-				result = arrOfStr[0];
-			}
-			calcul_display.setText(result);
-			System.out.println(result + "0 fin");
-			break;
-		}
-		case 1: {
-			System.out.println(result + "1");
-			Double d = Double.parseDouble(result) + Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-			changeCurrentOpe(newOperator);
-			String value = result.replace(".", ",");
-			String[] arrOfStr = value.split(",");
-			System.out.println(Arrays.toString(arrOfStr));
-			if (arrOfStr[1].equals("0")) {
-				result = arrOfStr[0];
-			}
 
-			calcul_display.setText(result);
-			break;
-		}
-		case 2: {
-			Double d = Double.parseDouble(result) - Double.parseDouble(calcul_display.getText());
-			result = "" + d;
 
-			String value = result.replace(".", ",");
-			String[] arrOfStr = value.split(",");
-			System.out.println(Arrays.toString(arrOfStr));
-			if (arrOfStr[1].equals("0")) {
-				result = arrOfStr[0];
-			}
-			calcul_display.setText(result);
-			changeCurrentOpe(newOperator);
-			break;
-		}
-		case 3: {
-
-			Double d = Double.parseDouble(result) * Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-
-			String value = result.replace(".", ",");
-			String[] arrOfStr = value.split(",");
-			System.out.println(Arrays.toString(arrOfStr));
-			if (arrOfStr[1].equals("0")) {
-				result = arrOfStr[0];
-			}
-			calcul_display.setText(result);
-			changeCurrentOpe(newOperator);
-			break;
-		}
-		case 4: {
-			Double d = Double.parseDouble(result) / Double.parseDouble(calcul_display.getText());
-			result = "" + d;
-
-			String value = result.replace(".", ",");
-			String[] arrOfStr = value.split(",");
-			System.out.println(Arrays.toString(arrOfStr));
-			try {
-				if (arrOfStr[1].equals("0")) {
-					result = arrOfStr[0];
-				}
-				changeCurrentOpe(newOperator);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				calcul_display.setFont(new Font("Tahoma", Font.BOLD, 18));
-				result="Nous ne pouvons pas diviser par zéro";
-				currentOperator=0;
-				
-			}
-
-			calcul_display.setText(result);
-			calcul_display.setFont(new Font("Tahoma", Font.BOLD, 26));
-			
-			break;
-		}
-
-		default:
-			System.out.println("error");
-
-		}
-
-	}
-
-	public void changeCurrentOpe(int newOperator) {
-
-		currentOperator = newOperator;
-
-	}
 
 	/**
 	 * Create the application.
@@ -164,7 +61,7 @@ public class Calculatrice implements KeyListener{
 		frame = new JFrame();
 		frame.setBounds(100, 100, 448, 610);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.addKeyListener(this);
+
 		JPanel panel = new JPanel();
 		panel.setBackground(UIManager.getColor("SplitPaneDivider.draggingColor"));
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -196,7 +93,7 @@ public class Calculatrice implements KeyListener{
 		JButton btnNewButton = new JButton("MRC");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn) {
 					if (isValueInMemorie) {
 						calcul_display.setText("" + memorieValue);
 					}
@@ -211,7 +108,7 @@ public class Calculatrice implements KeyListener{
 		JButton btnMplus = new JButton("M+");
 		btnMplus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn) {
 					memorieValue += Double.parseDouble(calcul_display.getText());
 					isValueInMemorie = true;
 				}
@@ -226,7 +123,7 @@ public class Calculatrice implements KeyListener{
 		JButton btnMMoins = new JButton("M-");
 		btnMMoins.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn) {
 					memorieValue -= Double.parseDouble(calcul_display.getText());
 					isValueInMemorie = true;
 				}
@@ -250,14 +147,14 @@ public class Calculatrice implements KeyListener{
 		JButton btnOnc = new JButton("ON-C");
 		btnOnc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!isOn) {
-					isOn = true;
+				if (!calculate.isOn) {
+					calculate.setOn(true);
 					panel_calcul.setBackground(Color.green);
 
 				}
 				calcul_display.setText("");
-				result = "";
-				changeCurrentOpe(0);
+				calculate.setResult("");
+				calculate.changeCurrentOpe(0);
 
 			}
 		});
@@ -268,19 +165,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_7 = new JButton("7");
 		btn_7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_7.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_7.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_7.getText());
 
 			}
 		});
@@ -291,19 +176,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_8 = new JButton("8");
 		btn_8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_8.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_8.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_8.getText());
 
 			}
 		});
@@ -314,19 +187,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_9 = new JButton("9");
 		btn_9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_9.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_9.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_9.getText());
 
 			}
 		});
@@ -369,19 +230,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_4 = new JButton("4");
 		btn_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_4.getText();
-					if (!operatorPressed) {
-
-						value = calcul_display.getText() + btn_4.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_4.getText());
 
 			}
 		});
@@ -393,17 +242,7 @@ public class Calculatrice implements KeyListener{
 		btn_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-					String value = btn_5.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_5.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_5.getText());
 
 			}
 		});
@@ -414,17 +253,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_6 = new JButton("6");
 		btn_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-					String value = btn_6.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_6.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_6.getText());
 
 			}
 		});
@@ -435,17 +264,7 @@ public class Calculatrice implements KeyListener{
 		JButton btnX = new JButton("x");
 		btnX.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
-
-						if (!operatorPressed) {
-							calculate(calcul_display, 3);
-						} else {
-							currentOperator = 3;
-						}
-					}
-
-				}
+				calculate.doOperation(calcul_display,3);
 			}
 		});
 		btnX.setBounds(259, 146, 73, 55);
@@ -455,15 +274,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_division = new JButton("\u00F7");
 		btn_division.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (!operatorPressed) {
-						if (!result.equals("") || !calcul_display.getText().isEmpty()) {
-							calculate(calcul_display, 4);
-						}
-					} else {
-						currentOperator = 4;
-					}
-				}
+				calculate.doOperation(calcul_display,4);
 			}
 		});
 		btn_division.setBounds(342, 146, 73, 55);
@@ -473,18 +284,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_1 = new JButton("1");
 		btn_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_1.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_1.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_1.getText());
 
 			}
 		});
@@ -495,18 +295,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_2 = new JButton("2");
 		btn_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_2.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_2.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_2.getText());
 
 			}
 		});
@@ -517,18 +306,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_3 = new JButton("3");
 		btn_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-
-					String value = btn_3.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_3.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_3.getText());
 
 			}
 		});
@@ -539,18 +317,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_addition = new JButton("+");
 		btn_addition.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
-
-						if (!operatorPressed) {
-							System.out.println(result);
-							calculate(calcul_display, 1);
-						} else {
-							currentOperator = 1;
-						}
-					}
-
-				}
+				calculate.doOperation(calcul_display,1);
 			}
 		});
 		btn_addition.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -561,17 +328,8 @@ public class Calculatrice implements KeyListener{
 		JButton btn_soustration = new JButton("-");
 		btn_soustration.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
-
-						if (!operatorPressed) {
-							calculate(calcul_display, 2);
-						} else {
-							currentOperator = 2;
-						}
-					}
-
-				}
+				calculate.doOperation(calcul_display,2);
+			
 			}
 		});
 		btn_soustration.setBounds(342, 212, 73, 55);
@@ -581,8 +339,8 @@ public class Calculatrice implements KeyListener{
 		JButton btn_result = new JButton("=");
 		btn_result.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
+				if (calculate.isOn()) {
+					if (!calculate.result.equals("") || !calcul_display.getText().isEmpty()) {
 
 //						if (calcul_display.getText().equals("0") && currentOperator == 4) {
 //							calcul_display.setFont(new Font("Tahoma", Font.BOLD, 18));
@@ -590,11 +348,11 @@ public class Calculatrice implements KeyListener{
 //						} else {
 //						
 //						}
-						if (!operatorPressed) {
-							calculate(calcul_display, 0);
-							calcul_display.setText(result);
+						if (!calculate.isOperatorPressed()) {
+							calculate.operation(calcul_display, 0);
+							calcul_display.setText(calculate.result);
 						} else {
-							currentOperator = 0;
+							calculate.currentOperator = 0;
 						}
 
 					}
@@ -608,17 +366,7 @@ public class Calculatrice implements KeyListener{
 		JButton btn_0 = new JButton("0");
 		btn_0.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
-					if (calcul_display.getText().equals("0")) {
-						calcul_display.setText("");
-					}
-					String value = btn_0.getText();
-					if (!operatorPressed) {
-						value = calcul_display.getText() + btn_0.getText();
-					}
-					operatorPressed = false;
-					calcul_display.setText(value);
-				}
+				calculate.addNumber(calcul_display,  btn_0.getText());
 
 			}
 		});
@@ -629,9 +377,9 @@ public class Calculatrice implements KeyListener{
 		JButton btn_point = new JButton(".");
 		btn_point.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn()) {
 
-					if (operatorPressed) {
+					if (calculate.isOperatorPressed()) {
 
 						calcul_display.setText("");
 					}
@@ -643,12 +391,12 @@ public class Calculatrice implements KeyListener{
 							value = "0" + btn_point.getText();
 						}
 
-						if (operatorPressed) {
+						if (calculate.isOperatorPressed()) {
 
 							value = "0.";
 						}
 					}
-					operatorPressed = false;
+					calculate.setOperatorPressed(false);
 					calcul_display.setText(value);
 				}
 
@@ -661,24 +409,24 @@ public class Calculatrice implements KeyListener{
 		JButton btn_signe = new JButton("+/-");
 		btn_signe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (isOn) {
+				if (calculate.isOn()) {
 					String value = calcul_display.getText();
 					if (calcul_display.getText().indexOf('-') == -1) {
 						value = "-";
-						if (!operatorPressed) {
+						if (!calculate.isOperatorPressed()) {
 
 							value = "-" + calcul_display.getText();
 						}
 
 					} else {
 						value = "-";
-						if (!operatorPressed) {
+						if (!calculate.isOperatorPressed()) {
 
 							value = calcul_display.getText().replace("-", "");
 						}
 
 					}
-					operatorPressed = false;
+					calculate.setOperatorPressed(false);
 					calcul_display.setText(value);
 				}
 
@@ -688,23 +436,5 @@ public class Calculatrice implements KeyListener{
 		btn_signe.setBounds(176, 278, 73, 55);
 		panel_2.add(btn_signe);
 		btn_signe.setBackground(Color.LIGHT_GRAY);
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("tt");
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 }
