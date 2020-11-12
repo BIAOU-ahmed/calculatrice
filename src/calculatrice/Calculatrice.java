@@ -14,15 +14,19 @@ import javax.swing.UIManager;
 import java.awt.SystemColor;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import java.awt.CardLayout;
 import java.awt.Font;
 
-public class Calculatrice {
+public class Calculatrice implements KeyListener{
 
 	private JFrame frame;
 	static boolean isOn = false;
+	static boolean isValueInMemorie = false;
 	static int currentOperator = 0;
 	static String result;
 	static boolean operatorPressed = false;
@@ -46,25 +50,49 @@ public class Calculatrice {
 
 	public void calculate(JLabel calcul_display, int newOperator) {
 		operatorPressed = true;
+		System.out.println(currentOperator);
 		switch (currentOperator) {
 		case 0: {
-			System.out.println(result);
-			result = calcul_display.getText();
-			changeCurrentOpe(newOperator);
-			calcul_display.setText(result);
+			System.out.println(result + "0 debut");
 
+			result = "" + Double.parseDouble(calcul_display.getText());
+			changeCurrentOpe(newOperator);
+			System.out.println(result);
+			String value = result.replace(".", ",");
+			String[] arrOfStr = value.split(",");
+			System.out.println(Arrays.toString(arrOfStr));
+			if (arrOfStr[1].equals("0")) {
+				result = arrOfStr[0];
+			}
+			calcul_display.setText(result);
+			System.out.println(result + "0 fin");
 			break;
 		}
 		case 1: {
+			System.out.println(result + "1");
 			Double d = Double.parseDouble(result) + Double.parseDouble(calcul_display.getText());
 			result = "" + d;
 			changeCurrentOpe(newOperator);
+			String value = result.replace(".", ",");
+			String[] arrOfStr = value.split(",");
+			System.out.println(Arrays.toString(arrOfStr));
+			if (arrOfStr[1].equals("0")) {
+				result = arrOfStr[0];
+			}
+
 			calcul_display.setText(result);
 			break;
 		}
 		case 2: {
 			Double d = Double.parseDouble(result) - Double.parseDouble(calcul_display.getText());
 			result = "" + d;
+
+			String value = result.replace(".", ",");
+			String[] arrOfStr = value.split(",");
+			System.out.println(Arrays.toString(arrOfStr));
+			if (arrOfStr[1].equals("0")) {
+				result = arrOfStr[0];
+			}
 			calcul_display.setText(result);
 			changeCurrentOpe(newOperator);
 			break;
@@ -73,6 +101,13 @@ public class Calculatrice {
 
 			Double d = Double.parseDouble(result) * Double.parseDouble(calcul_display.getText());
 			result = "" + d;
+
+			String value = result.replace(".", ",");
+			String[] arrOfStr = value.split(",");
+			System.out.println(Arrays.toString(arrOfStr));
+			if (arrOfStr[1].equals("0")) {
+				result = arrOfStr[0];
+			}
 			calcul_display.setText(result);
 			changeCurrentOpe(newOperator);
 			break;
@@ -80,8 +115,25 @@ public class Calculatrice {
 		case 4: {
 			Double d = Double.parseDouble(result) / Double.parseDouble(calcul_display.getText());
 			result = "" + d;
+
+			String value = result.replace(".", ",");
+			String[] arrOfStr = value.split(",");
+			System.out.println(Arrays.toString(arrOfStr));
+			try {
+				if (arrOfStr[1].equals("0")) {
+					result = arrOfStr[0];
+				}
+				changeCurrentOpe(newOperator);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				calcul_display.setFont(new Font("Tahoma", Font.BOLD, 18));
+				result="Nous ne pouvons pas diviser par zéro";
+				currentOperator=0;
+				
+			}
+
 			calcul_display.setText(result);
-			changeCurrentOpe(newOperator);
+			calcul_display.setFont(new Font("Tahoma", Font.BOLD, 26));
+			
 			break;
 		}
 
@@ -112,7 +164,7 @@ public class Calculatrice {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 448, 610);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		frame.addKeyListener(this);
 		JPanel panel = new JPanel();
 		panel.setBackground(UIManager.getColor("SplitPaneDivider.draggingColor"));
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -144,8 +196,12 @@ public class Calculatrice {
 		JButton btnNewButton = new JButton("MRC");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				calcul_display.setText("" + memorieValue);
+				if (isOn) {
+					if (isValueInMemorie) {
+						calcul_display.setText("" + memorieValue);
+					}
 
+				}
 			}
 		});
 		btnNewButton.setBounds(10, 11, 73, 55);
@@ -155,8 +211,11 @@ public class Calculatrice {
 		JButton btnMplus = new JButton("M+");
 		btnMplus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				memorieValue += Double.parseDouble(calcul_display.getText());
-				System.out.println(memorieValue);
+				if (isOn) {
+					memorieValue += Double.parseDouble(calcul_display.getText());
+					isValueInMemorie = true;
+				}
+
 			}
 
 		});
@@ -167,8 +226,10 @@ public class Calculatrice {
 		JButton btnMMoins = new JButton("M-");
 		btnMMoins.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				memorieValue -= Double.parseDouble(calcul_display.getText());
-				System.out.println(memorieValue);
+				if (isOn) {
+					memorieValue -= Double.parseDouble(calcul_display.getText());
+					isValueInMemorie = true;
+				}
 			}
 		});
 		btnMMoins.setBounds(176, 11, 73, 55);
@@ -278,8 +339,8 @@ public class Calculatrice {
 			public void actionPerformed(ActionEvent e) {
 				if (!calcul_display.getText().isEmpty()) {
 					Double d = Double.parseDouble(calcul_display.getText()) / 100;
-					result = "" + d;
-					calcul_display.setText(result);
+
+					calcul_display.setText("" + d);
 				}
 
 			}
@@ -295,8 +356,8 @@ public class Calculatrice {
 
 				if (!calcul_display.getText().isEmpty()) {
 					Double d = Math.sqrt(Double.parseDouble(calcul_display.getText()));
-					result = "" + d;
-					calcul_display.setText(result);
+
+					calcul_display.setText("" + d);
 				}
 
 			}
@@ -375,9 +436,15 @@ public class Calculatrice {
 		btnX.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 3);
+					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
+
+						if (!operatorPressed) {
+							calculate(calcul_display, 3);
+						} else {
+							currentOperator = 3;
+						}
 					}
+
 				}
 			}
 		});
@@ -389,8 +456,12 @@ public class Calculatrice {
 		btn_division.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 4);
+					if (!operatorPressed) {
+						if (!result.equals("") || !calcul_display.getText().isEmpty()) {
+							calculate(calcul_display, 4);
+						}
+					} else {
+						currentOperator = 4;
 					}
 				}
 			}
@@ -447,7 +518,7 @@ public class Calculatrice {
 		btn_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
-					if (calcul_display.getText().equals("0")){
+					if (calcul_display.getText().equals("0")) {
 						calcul_display.setText("");
 					}
 
@@ -469,11 +540,16 @@ public class Calculatrice {
 		btn_addition.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-						System.out.println(result);
-						calculate(calcul_display, 1);
+					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
+
+						if (!operatorPressed) {
+							System.out.println(result);
+							calculate(calcul_display, 1);
+						} else {
+							currentOperator = 1;
+						}
 					}
-					
+
 				}
 			}
 		});
@@ -486,8 +562,13 @@ public class Calculatrice {
 		btn_soustration.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 2);
+					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
+
+						if (!operatorPressed) {
+							calculate(calcul_display, 2);
+						} else {
+							currentOperator = 2;
+						}
 					}
 
 				}
@@ -501,9 +582,21 @@ public class Calculatrice {
 		btn_result.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
-					if(!result.equals("") || !calcul_display.getText().isEmpty()) {
-					calculate(calcul_display, 0);
-					calcul_display.setText(result);
+					if (!result.equals("") || !calcul_display.getText().isEmpty()) {
+
+//						if (calcul_display.getText().equals("0") && currentOperator == 4) {
+//							calcul_display.setFont(new Font("Tahoma", Font.BOLD, 18));
+//							calcul_display.setText("Nous ne pouvons pas diviser par zéro");
+//						} else {
+//						
+//						}
+						if (!operatorPressed) {
+							calculate(calcul_display, 0);
+							calcul_display.setText(result);
+						} else {
+							currentOperator = 0;
+						}
+
 					}
 				}
 			}
@@ -538,7 +631,24 @@ public class Calculatrice {
 			public void actionPerformed(ActionEvent e) {
 				if (isOn) {
 
-					String value = calcul_display.getText() + btn_point.getText();
+					if (operatorPressed) {
+
+						calcul_display.setText("");
+					}
+
+					String value = calcul_display.getText();
+					if (calcul_display.getText().indexOf('.') == -1) {
+						value = calcul_display.getText() + btn_point.getText();
+						if (calcul_display.getText().isEmpty()) {
+							value = "0" + btn_point.getText();
+						}
+
+						if (operatorPressed) {
+
+							value = "0.";
+						}
+					}
+					operatorPressed = false;
 					calcul_display.setText(value);
 				}
 
@@ -559,7 +669,6 @@ public class Calculatrice {
 
 							value = "-" + calcul_display.getText();
 						}
-						
 
 					} else {
 						value = "-";
@@ -567,9 +676,7 @@ public class Calculatrice {
 
 							value = calcul_display.getText().replace("-", "");
 						}
-						
-						
-						
+
 					}
 					operatorPressed = false;
 					calcul_display.setText(value);
@@ -581,5 +688,23 @@ public class Calculatrice {
 		btn_signe.setBounds(176, 278, 73, 55);
 		panel_2.add(btn_signe);
 		btn_signe.setBackground(Color.LIGHT_GRAY);
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println("tt");
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
